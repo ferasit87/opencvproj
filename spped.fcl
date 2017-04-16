@@ -1,0 +1,70 @@
+FUNCTION_BLOCK dummy
+ 
+    VAR_INPUT
+        Speed :     REAL; (* RANGE(0 .. 200) *)
+        Obstacle:    REAL; (* RANGE(0 .. 1000) *)
+		Target:    REAL; (* RANGE(0 .. 1000) *)
+    END_VAR
+ 
+    VAR_OUTPUT
+        Acceleration : REAL; (* RANGE(-0.1 .. 0.01) *)
+    END_VAR
+ 
+    FUZZIFY Speed
+        TERM low := (0, 0) (0, 1) (100, 0) ;
+        TERM middle := (10, 0) (140, 1) (170, 0) ;
+        TERM heigh := (100, 0) (150, 1) (200, 0) ;
+    END_FUZZIFY	
+	
+    FUZZIFY Obstacle
+        TERM Near := (0, 0) (0, 10) (500, 0) ;
+        TERM middle := (140, 0) (500, 1) (830, 0) ;
+        TERM Far := (500, 0) (1000, 1) (1000, 0) ;
+    END_FUZZIFY
+	
+	FUZZIFY Target
+        TERM Near := (0, 0) (0, 10) (200, 0) ;
+        TERM middle := (140, 0) (500, 1) (830, 0) ;
+        TERM Far := (500, 0) (1000, 1) (1000, 0) ;
+    END_FUZZIFY
+ 
+    DEFUZZIFY Acceleration
+        TERM Dec_sp := -4 ;
+        TERM No_change := 0 ;
+        TERM In_sp := 4 ;
+        ACCU:MAX;
+        METHOD: COGS;(*MoM;*)
+        DEFAULT := 0; 
+    END_DEFUZZIFY
+ 
+    RULEBLOCK first
+        AND:MIN;
+        (*ACCU:MAX;*)
+
+        RULE 0: IF (Speed IS low) AND (Obstacle IS Far) AND (Target IS Far) THEN (Acceleration IS In_sp);
+        RULE 1: IF (Speed IS low) AND (Obstacle IS Far) AND (Target IS middle) THEN (Acceleration IS In_sp);
+        RULE 2: IF (Speed IS low) AND (Obstacle IS Far) AND (Target IS Near) THEN (Acceleration IS No_change);
+        RULE 3: IF (Speed IS low) AND (Obstacle IS middle) AND (Target IS Far) THEN (Acceleration IS In_sp);
+        RULE 4: IF (Speed IS low) AND (Obstacle IS middle) AND (Target IS middle) THEN (Acceleration IS No_change);
+        RULE 5: IF (Speed IS low) AND (Obstacle IS middle) AND (Target IS Near) THEN (Acceleration IS No_change);
+        RULE 6: IF (Speed IS low) AND (Obstacle IS Near) THEN (Acceleration IS No_change);
+
+        RULE 7: IF (Speed IS middle) AND (Obstacle IS Far) AND (Target IS Far) THEN (Acceleration IS In_sp);
+        RULE 8: IF (Speed IS middle) AND (Obstacle IS Far) AND (Target IS middle) THEN (Acceleration IS No_change);
+        RULE 9: IF (Speed IS middle) AND (Obstacle IS Far) AND (Target IS Near) THEN (Acceleration IS Dec_sp);
+        RULE 10: IF (Speed IS middle) AND (Obstacle IS middle) AND (Target IS Far) THEN (Acceleration IS No_change);
+        RULE 11: IF (Speed IS middle) AND (Obstacle IS middle) AND (Target IS middle) THEN (Acceleration IS No_change);
+        RULE 12: IF (Speed IS middle) AND (Obstacle IS middle) AND (Target IS Near) THEN (Acceleration IS Dec_sp);
+        RULE 13: IF (Speed IS middle) AND (Obstacle IS Near) THEN (Acceleration IS Dec_sp);
+
+        RULE 14: IF (Speed IS heigh) AND (Obstacle IS Far) AND (Target IS Far) THEN (Acceleration IS No_change);
+        RULE 15: IF (Speed IS heigh) AND (Obstacle IS Far) AND (Target IS middle) THEN (Acceleration IS Dec_sp);
+        RULE 16: IF (Speed IS heigh) AND (Obstacle IS Far) AND (Target IS Near) THEN (Acceleration IS Dec_sp);
+        RULE 17: IF (Speed IS heigh) AND (Obstacle IS middle) AND (Target IS Far) THEN (Acceleration IS Dec_sp);
+        RULE 18: IF (Speed IS heigh) AND (Obstacle IS middle) AND (Target IS middle) THEN (Acceleration IS Dec_sp);
+        RULE 19: IF (Speed IS heigh) AND (Obstacle IS middle) AND (Target IS Near) THEN (Acceleration IS Dec_sp);
+        RULE 20: IF (Speed IS heigh) AND (Obstacle IS Near) THEN (Acceleration IS Dec_sp);
+
+    END_RULEBLOCK
+ 
+END_FUNCTION_BLOCK
