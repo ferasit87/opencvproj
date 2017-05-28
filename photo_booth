@@ -20,7 +20,7 @@ print("[INFO] warming up camera...")
 vs = cv2.VideoCapture(0)
 vs.set(3,2048)
 vs.set(4,1536)
-time.sleep(0.50)
+#time.sleep(0.50)
 
 # start the app
 pba = PhotoBoothApp(vs, args["output"])
